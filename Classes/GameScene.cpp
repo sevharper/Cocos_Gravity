@@ -1,15 +1,15 @@
-#include "HelloWorldScene.h"
+#include "GameScene.h"
 
 b2World* world;
 b2Vec2 gravity;
 
-Scene* HelloWorld::createScene()
+Scene* GameScene::createScene()
 {
     // 'scene' is an autorelease object
     auto scene = Scene::create();
     
     // 'layer' is an autorelease object
-    auto layer = HelloWorld::create();
+    auto layer = GameScene::create();
 
     // add layer as a child to scene
     scene->addChild(layer);
@@ -19,7 +19,7 @@ Scene* HelloWorld::createScene()
 }
 
 // on "init" you need to initialize your instance
-bool HelloWorld::init()
+bool GameScene::init()
 {
     //////////////////////////////
     // 1. super init first
@@ -39,7 +39,7 @@ bool HelloWorld::init()
     auto closeItem = MenuItemImage::create(
                                            "CloseNormal.png",
                                            "CloseSelected.png",
-                                           CC_CALLBACK_1(HelloWorld::menuCloseCallback, this));
+                                           CC_CALLBACK_1(GameScene::menuCloseCallback, this));
     
 	closeItem->setPosition(Point(origin.x + visibleSize.width - closeItem->getContentSize().width/2 ,
                                 origin.y + closeItem->getContentSize().height/2));
@@ -48,6 +48,13 @@ bool HelloWorld::init()
     auto menu = Menu::create(closeItem, NULL);
     menu->setPosition(Point::ZERO);
     this->addChild(menu, 1);
+    
+    auto homeButton = MenuItemImage::create("gameButton.png", "gameButton.png",
+                                            CC_CALLBACK_1(GameScene::homeButtonCallback, this));
+    homeButton->setPosition(100,200);
+    auto homeButtonMenu = Menu::create(homeButton, NULL);
+    homeButtonMenu->setPosition(Point::ZERO);
+    this->addChild(homeButtonMenu);
 
     /////////////////////////////
     // 3. add your codes below...
@@ -62,21 +69,26 @@ bool HelloWorld::init()
     world->SetAllowSleeping(doSleep);
     
     auto touchListener = EventListenerTouchOneByOne::create();
-    touchListener->onTouchBegan = CC_CALLBACK_2(HelloWorld::touchBegan, this);
+    touchListener->onTouchBegan = CC_CALLBACK_2(GameScene::touchBegan, this);
     getEventDispatcher()->addEventListenerWithFixedPriority(touchListener, 100);
     
-    schedule(schedule_selector(HelloWorld::tick));
+    schedule(schedule_selector(GameScene::tick));
     
     return true;
 }
 
-bool HelloWorld::touchBegan(Touch* touch, Event* event)
+void GameScene::homeButtonCallback(cocos2d::Ref* pSender)
 {
-    HelloWorld::createStar(touch->getLocation());
+    Director::getInstance()->popScene();
+}
+
+bool GameScene::touchBegan(Touch* touch, Event* event)
+{
+    GameScene::createStar(touch->getLocation());
     return true;
 }
 
-void HelloWorld::createStar(Point p)
+void GameScene::createStar(Point p)
 {
     auto starSprite = Sprite::create("star.png");
     starSprite->setPosition(p);
@@ -101,7 +113,7 @@ void HelloWorld::createStar(Point p)
     starBody->CreateFixture(&starFixtureDef);
 }
 
-void HelloWorld::tick(float dt)
+void GameScene::tick(float dt)
 {
     int velocityIterations = 8;
     int positionIterations = 3;
@@ -127,7 +139,7 @@ void HelloWorld::tick(float dt)
 }
 
 
-void HelloWorld::menuCloseCallback(Ref* pSender)
+void GameScene::menuCloseCallback(Ref* pSender)
 {
     Director::getInstance()->end();
 
